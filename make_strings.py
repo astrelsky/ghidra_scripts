@@ -25,6 +25,8 @@ THE SOFTWARE.
 #@category Strings
 #@author Andrew J. Strelsky
 
+from ghidra.program.model.address import AddressOutOfBoundsException
+
 def getProgress(addr):
     return currentSelection.maxAddress.offset - addr.offset
 
@@ -42,7 +44,11 @@ if __name__ == '__main__':
             if mem.getByte(addr) != 0:
                 d = createAsciiString(addr)
                 assert d.hasStringValue()
-                addr = addr.add(d.length)
+                try:
+                    addr = addr.add(d.length)
+                except AddressOutOfBoundsException as e:
+                    # string ends at the end of the selection or memory block
+                    break
             else:
                 addr = addr.next()
         elif d.hasStringValue():
