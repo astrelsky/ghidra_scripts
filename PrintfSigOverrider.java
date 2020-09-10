@@ -68,7 +68,7 @@ public class PrintfSigOverrider extends GhidraScript {
         Pattern.compile("%\\d*([lLh]?[cdieEfgGosuxXpn%])");
 
 	private static final DataType CHAR_PTR = PointerDataType.getPointer(CharDataType.dataType, -1);
-	
+
 	private SymbolTable table;
 	private DataTypeManager dtm;
 
@@ -89,12 +89,12 @@ public class PrintfSigOverrider extends GhidraScript {
 		dtm = currentProgram.getDataTypeManager();
 		table = currentProgram.getSymbolTable();
 		Optional<Symbol> s = StreamSupport.stream(currentProgram.getSymbolTable()
-										  .getSymbolIterator(PRINT_F, true)
-										  .spliterator(), false)
-										  .filter(PrintfSigOverrider::isFunction)
-										  .findFirst();
+			.getSymbolIterator(PRINT_F, true)
+			.spliterator(), false)
+			.filter(PrintfSigOverrider::isFunction)
+			.findFirst();
 		if (s.isPresent()) {
-			final Parameter format = ((Function) s.get().getObject()).getParameter(0);
+			Parameter format = ((Function) s.get().getObject()).getParameter(0);
 			if (format == null) {
 				printerr("Unable to retrieve format parameter");
 				return;
@@ -105,10 +105,10 @@ public class PrintfSigOverrider extends GhidraScript {
 			}
 			final ReferenceManager manager = currentProgram.getReferenceManager();
 			List<Address> addresses = Arrays.stream(s.get().getReferences())
-					.filter(PrintfSigOverrider::isCall)
-					.map(Reference::getFromAddress)
-					.filter(Predicate.not(manager::hasReferencesTo))
-					.collect(Collectors.toList());
+				.filter(PrintfSigOverrider::isCall)
+				.map(Reference::getFromAddress)
+				.filter(Predicate.not(manager::hasReferencesTo))
+				.collect(Collectors.toList());
 			monitor.initialize(addresses.size());
 			monitor.setMessage("Overriding printf calls");
 			for (Address address : addresses) {
@@ -146,9 +146,9 @@ public class PrintfSigOverrider extends GhidraScript {
 			}
         }
 	}
-	
+
 	private boolean isValidAddress(Address address) {
-		final MemoryBlock block = getMemoryBlock(address);
+		MemoryBlock block = getMemoryBlock(address);
 		return block != null && !block.isExecute();
 	}
 
@@ -164,7 +164,7 @@ public class PrintfSigOverrider extends GhidraScript {
 
     private void overrideFunction(Function function, Address address, String format)
         throws Exception {
-            int transaction = -1; 
+            int transaction = -1;
             if (currentProgram.getCurrentTransaction() == null) {
                 transaction = currentProgram.startTransaction("Override Signature");
             }
@@ -179,17 +179,15 @@ public class PrintfSigOverrider extends GhidraScript {
 						commit = true;
 					}
 				}
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
 				printerr("Error overriding signature: " + e.getMessage());
-            }
-            finally {
+            } finally {
                 if (transaction != -1) {
                     currentProgram.endTransaction(transaction, commit);
                 }
             }
 	}
-	
+
 	private static DataType toDataType(CharSequence match) {
 		if (match.charAt(0) == 'h') {
 			switch(match.charAt(1)) {
@@ -276,14 +274,14 @@ public class PrintfSigOverrider extends GhidraScript {
 
 	private FunctionDefinition getFunctionSignature(String format, Function function)
 		throws Exception {
-			final FunctionDefinition def = new FunctionDefinitionDataType(TMP_NAME);
-			final Matcher matcher = FORMAT_PATTERN.matcher(format);
-			final Stream<DataType> types = matcher.results()
-												  .map(PrintfSigOverrider::getSpecifier)
-												  .map(PrintfSigOverrider::toDataType);
+			FunctionDefinition def = new FunctionDefinitionDataType(TMP_NAME);
+			Matcher matcher = FORMAT_PATTERN.matcher(format);
+			Stream<DataType> types = matcher.results()
+				.map(PrintfSigOverrider::getSpecifier)
+				.map(PrintfSigOverrider::toDataType);
 			ParameterDefinition[] params = Stream.concat(Stream.of(CHAR_PTR), types)
-												 .map(PrintfSigOverrider::toParameter)
-												 .toArray(ParameterDefinition[]::new);
+				.map(PrintfSigOverrider::toParameter)
+				.toArray(ParameterDefinition[]::new);
 			def.setArguments(params);
 			def.setReturnType(IntegerDataType.dataType);
 			return def;
@@ -293,7 +291,7 @@ public class PrintfSigOverrider extends GhidraScript {
 
     public static ConstantPropagationAnalyzer getConstantAnalyzer(Program program) {
         AutoAnalysisManager mgr = AutoAnalysisManager.getAnalysisManager(program);
-        List<ConstantPropagationAnalyzer> analyzers = 
+        List<ConstantPropagationAnalyzer> analyzers =
             ClassSearcher.getInstances(ConstantPropagationAnalyzer.class);
         for (ConstantPropagationAnalyzer analyzer : analyzers) {
             if (analyzer.canAnalyze(program)) {
