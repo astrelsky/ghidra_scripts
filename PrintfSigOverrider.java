@@ -65,7 +65,7 @@ public class PrintfSigOverrider extends GhidraScript {
 	private static final String AUTO_CAT = "/auto_proto";
 
     private static final Pattern FORMAT_PATTERN =
-        Pattern.compile("%\\d*([lLh]?[cdieEfgGosuxXpn%])");
+        Pattern.compile("%\\d*([lLh]?[cdieEfgGosuxXpn])");
 
 	private static final DataType CHAR_PTR = PointerDataType.getPointer(CharDataType.dataType, -1);
 
